@@ -1,0 +1,38 @@
+-- install apache and enable proxy module
+
+sudo apt update
+sudo apt install apache2
+sudo a2enmod proxy proxy_http 
+
+-- create img-proxy.conf file
+
+cd /etc/apache2/sites-available/
+
+touch img-proxy.conf
+
+-- Enter Vhost content
+
+<VirtualHost *:80>
+    ServerName storage.futugoapp.com
+    ProxyRequests On
+    ProxyPass /storage http://213.109.184.8:8180/
+    ProxyPassReverse /storage http://213.109.184.8:8180/
+ 
+    <Location "/storage">
+        Require all granted
+    </Location>
+
+</VirtualHost>
+
+-- Enable site
+sudo a2ensite img-proxy
+
+-- Restart apache
+sudo service apache2 restart
+
+-- install letsencrypt 
+
+sudo apt install certbot python3-certbot-apache
+sudo certbot --apache
+
+-- you may need to add *80 vhost config to lets-encrypt generated *443 ssl config vhost
